@@ -18,13 +18,13 @@ template<typename T>
 T hit_sphere( const point3<T>& center, T radius, const ray<T>& r){
     vec3<T> oc = r.origin() - center;
     auto a = dot(r.direction(), r.direction());
-    auto b = (T)2.0 * dot(oc, r.direction());
+    auto b = dot(oc, r.direction());
     auto c = dot(oc, oc) - radius * radius;
-    auto discriminant = b * b - 4*a*c;
+    auto discriminant = b * b - a*c;
     
     if (discriminant < 0) {
         return -1.0;
     } else {
-        return (-b - sqrt(discriminant) ) / (2.0*a);
+        return (-b - sqrt(discriminant) ) / a;
     }
 }
