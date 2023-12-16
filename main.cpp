@@ -3,6 +3,7 @@
 #include "color.h"
 #include "ray.h"
 
+#include "memory"
 #include "sphere.h"
 
 using GType=float;
@@ -12,12 +13,11 @@ color<T> ray_color(const ray<T>& r){
     /**
      * @brief center, radius, ray
      */
-     T t = hit_sphere(point3<T>(0,0,-1), (T)0.5, r);
-    if(t > 0.0)
+    std::shared_ptr<sphere<T>> sphere = std::make_shared<::sphere<T>>( point3<T>(0,0,-1), (T)0.5 );
+    hit_record<T> res;
+    if(sphere.get()->hit(r, 0, 1, res))
     {
-        // return color<T>(1,0,0);
-        vec3<T> normal = unit_vector( r.at(t) - vec3<T>(0,0,-1) );
-        return (T)0.5 * color<T>( normal.x() + 1, normal.y() + 1, normal.z() + 1);
+        return (T)0.5 * color<T>( res.normal.x() + 1, res.normal.y() + 1, res.normal.z() + 1);
     }
         
     vec3<T> unit_direction = unit_vector(r.direction());

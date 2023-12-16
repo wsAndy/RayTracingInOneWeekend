@@ -2,6 +2,7 @@
 #include "vec3.h"
 #include "ray.h"
 #include "color.h"
+#include "hittable.h"
 
 
 /**
@@ -15,16 +16,39 @@ hit_sphere中的abc就是一元二次方程的参数
  */
 
 template<typename T>
-T hit_sphere( const point3<T>& center, T radius, const ray<T>& r){
-    vec3<T> oc = r.origin() - center;
-    auto a = dot(r.direction(), r.direction());
-    auto b = dot(oc, r.direction());
-    auto c = dot(oc, oc) - radius * radius;
-    auto discriminant = b * b - a*c;
-    
-    if (discriminant < 0) {
-        return -1.0;
-    } else {
-        return (-b - sqrt(discriminant) ) / a;
+class sphere: public hittable<T>{
+    private:
+    point3<T> center;
+    T radius;
+public:
+    sphere<T>() {}
+    sphere<T>(point3<T> _center, T _radius): center(_center), radius(_radius) {}
+
+    bool hit(const ray<T>& r, T ray_tmin, T ray_tmax, hit_record<T>& rec) const  override {
+            
+        vec3<T> oc = r.origin() - center;
+        auto a = r.direction().length_squared();
+        auto half_b = dot(oc, r.direction());
+        auto c = oc.length_squared() - radius * radius;
+
+        auto discriminant = half_b * half_b - a*c;
+        if( discriminant < 0) return false;
+
+        auto sqrtd = sqrt(discriminant);
+
+        // 在精度范围之内找到最近的解
+        auto root = (-half_b - sqrtd)/a;
+        if( root <= ray_tmin || root >= ray_tmax ) {
+            root = (-half_b + sqrtd)/a;
+            if( root <= ray_tmin || root >= ray_tmax ) {
+                return false;
+            }
+        }
+
+        rec.t = root;
+        rec.p = r.at(rec.t);
+        rec.normal = (rec.p - center)/radius;
+
+        return true;
     }
-}
+};
