@@ -1,23 +1,18 @@
 #include <iostream>
-#include "vec3.h"
+#include <memory>
+#include "utils.h"
 #include "color.h"
-#include "ray.h"
-
-#include "memory"
 #include "sphere.h"
 
 using GType=float;
 
 template<typename T>
-color<T> ray_color(const ray<T>& r){
-    /**
-     * @brief center, radius, ray
-     */
-    std::shared_ptr<sphere<T>> sphere = std::make_shared<::sphere<T>>( point3<T>(0,0,-1), (T)0.5 );
-    hit_record<T> res;
-    if(sphere.get()->hit(r, 0, 1, res))
+color<T> ray_color(const ray<T>& r, const hittable<T>& world){
+
+    hit_record<T> rec;
+    if(world.hit(r, interval<T>(0, infinity), rec))
     {
-        return (T)0.5 * color<T>( res.normal.x() + 1, res.normal.y() + 1, res.normal.z() + 1);
+        return (T)0.5*(rec.normal + color<T>(1, 1, 1) ) ;
     }
         
     vec3<T> unit_direction = unit_vector(r.direction());
@@ -34,6 +29,15 @@ int main(){
 
     int image_height = static_cast<int>(image_width / aspect_ratio);
     image_height = (image_height < 1) ? 1 : image_height;
+
+    // World
+
+    hittable_list<GType> world;
+
+    world.add( std::make_shared<::sphere<GType>>(point3<GType>(0, 0, -1), 0.5) );
+
+    world.add( std::make_shared<::sphere<GType>>(point3<GType>(0, -100.5, -1), 100) ); 
+
 
     // Camera
 
@@ -66,7 +70,7 @@ int main(){
             auto pixel_center = pixel00_loc + ((GType)i * pixel_delta_u) + ((GType)j * pixel_delta_v);
             auto ray_direction = pixel_center - camera_center;
             ray<GType> r(camera_center, ray_direction);
-            color<GType> pixel_color = ray_color(r);
+            color<GType> pixel_color = ray_color(r, world);
 
             write_color(std::cout, pixel_color);
         }

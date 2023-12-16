@@ -3,6 +3,7 @@
 #include "ray.h"
 #include "color.h"
 #include "hittable.h"
+#include "interval.h"
 
 
 /**
@@ -24,7 +25,7 @@ public:
     sphere<T>() {}
     sphere<T>(point3<T> _center, T _radius): center(_center), radius(_radius) {}
 
-    bool hit(const ray<T>& r, T ray_tmin, T ray_tmax, hit_record<T>& rec) const  override {
+    bool hit(const ray<T>& r, interval<T> ray_t, hit_record<T>& rec) const  override {
             
         vec3<T> oc = r.origin() - center;
         auto a = r.direction().length_squared();
@@ -38,16 +39,18 @@ public:
 
         // 在精度范围之内找到最近的解
         auto root = (-half_b - sqrtd)/a;
-        if( root <= ray_tmin || root >= ray_tmax ) {
+        if( !ray_t.surrounds(root) ) {
             root = (-half_b + sqrtd)/a;
-            if( root <= ray_tmin || root >= ray_tmax ) {
+            if( !ray_t.surrounds(root) ) {
                 return false;
             }
         }
 
         rec.t = root;
         rec.p = r.at(rec.t);
-        rec.normal = (rec.p - center)/radius;
+
+        vec3<T> outward_normal = (rec.p - center) / radius;
+        rec.set_face_normal(r, outward_normal);
 
         return true;
     }
