@@ -13,6 +13,7 @@ class camera{
     
     T aspect_ratio = 16.0/9.0;
     int image_width = 400;
+    int samples_per_pixel = 100; 
 
 
 
@@ -26,13 +27,12 @@ class camera{
             std::clog << "\rScanlines remaining: " << (image_height-j) << " " << std::flush;
 
             for(int i = 0; i < image_width; ++i){
-                
-                auto pixel_center = pixel00_loc + ((T)i * pixel_delta_u) + ((T)j * pixel_delta_v);
-                auto ray_direction = pixel_center - camera_center;
-                ray<T> r(camera_center, ray_direction);
-                color<T> pixel_color = ray_color(r, world);
-
-                write_color(std::cout, pixel_color);
+                color<T> pixel_color(0,0,0);
+                for(int sample = 0; sample < samples_per_pixel; ++sample){
+                    ray<T> r = get_ray(i,j);
+                    pixel_color += ray_color(r, world);
+                }
+                write_color(std::cout, pixel_color, samples_per_pixel);
             }
         }
         std::clog << "\rDone.   \n" ;
@@ -72,7 +72,20 @@ private:
     point3<T> pixel00_loc;
     point3<T> camera_center;
 
+    ray<T> get_ray(int i, int j) const{
+        auto pixel_center = pixel00_loc + ((T)i * pixel_delta_u) + ((T)j * pixel_delta_v);
+        auto pixel_sample = pixel_center + pixel_sample_square();
 
+        auto ray_direction = pixel_sample - camera_center;
+        return ray<T>(camera_center, ray_direction);
+    }
+
+    vec3<T> pixel_sample_square() const {
+        // Returns a random point in the square surrounding a pixel at the origin.
+        T px = -0.5 + random_double();
+        T py = -0.5 + random_double();
+        return (px * pixel_delta_u) + (py * pixel_delta_v);
+    }
 
     color<T> ray_color(const ray<T>& r, const hittable<T>& world) const {
         hit_record<T> rec;

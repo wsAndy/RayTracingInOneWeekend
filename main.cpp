@@ -15,7 +15,7 @@ int main(){
 
 
     // World
-
+    
     hittable_list<GType> world;
 
     world.add( std::make_shared<::sphere<GType>>(point3<GType>(0, 0, -1), 0.5) );
