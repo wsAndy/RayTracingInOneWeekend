@@ -3,14 +3,22 @@
 #include "color.h"
 #include "ray.h"
 
+#include "sphere.h"
+
 using GType=float;
 
-color<GType> ray_color(const ray<GType>& r){
-    vec3<GType> unit_direction = unit_vector(r.direction());
+template<typename T>
+color<T> ray_color(const ray<T>& r){
+    /**
+     * @brief center, radius, ray
+     */
+    if( hit_sphere(point3<T>(0,0,-1), (T)0.5, r))
+        return color<T>(1,0,0);
+    vec3<T> unit_direction = unit_vector(r.direction());
     // 归一化向量，y轴-1~1, 映射到a的0~1
     auto a = 0.5 * (unit_direction.y() + 1.0);
     // 在白色到(0.5, 0.7, 1.0) 之间线性渐变
-    return (GType)(1.0-a) * color<GType>(1.0, 1.0, 1.0) + (GType)a * color<GType>(0.5, 0.7, 1.0);
+    return (T)(1.0-a) * color<T>(1.0, 1.0, 1.0) + (T)a * color<T>(0.5, 0.7, 1.0);
 }
 
 int main(){
