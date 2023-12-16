@@ -12,8 +12,14 @@ color<T> ray_color(const ray<T>& r){
     /**
      * @brief center, radius, ray
      */
-    if( hit_sphere(point3<T>(0,0,-1), (T)0.5, r))
-        return color<T>(1,0,0);
+     T t = hit_sphere(point3<T>(0,0,-1), (T)0.5, r);
+    if(t > 0.0)
+    {
+        // return color<T>(1,0,0);
+        vec3<T> normal = unit_vector( r.at(t) - vec3<T>(0,0,-1) );
+        return (T)0.5 * color<T>( normal.x() + 1, normal.y() + 1, normal.z() + 1);
+    }
+        
     vec3<T> unit_direction = unit_vector(r.direction());
     // 归一化向量，y轴-1~1, 映射到a的0~1
     auto a = 0.5 * (unit_direction.y() + 1.0);

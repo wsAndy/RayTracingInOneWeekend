@@ -15,11 +15,16 @@ hit_sphere中的abc就是一元二次方程的参数
  */
 
 template<typename T>
-bool hit_sphere( const point3<T>& center, T radius, const ray<T>& r){
+T hit_sphere( const point3<T>& center, T radius, const ray<T>& r){
     vec3<T> oc = r.origin() - center;
     auto a = dot(r.direction(), r.direction());
     auto b = (T)2.0 * dot(oc, r.direction());
     auto c = dot(oc, oc) - radius * radius;
     auto discriminant = b * b - 4*a*c;
-    return (discriminant >= 0);
+    
+    if (discriminant < 0) {
+        return -1.0;
+    } else {
+        return (-b - sqrt(discriminant) ) / (2.0*a);
+    }
 }
