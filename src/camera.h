@@ -94,7 +94,7 @@ private:
             return color<T>(0, 0, 0);
         }
 
-        if(world.hit(r, interval<T>(0, infinity), rec))
+        if(world.hit(r, interval<T>(0.0001, infinity), rec))
         {
             vec3 direction = random_on_hemisphere(rec.normal);
             return (T)0.5*( ray_color(ray(rec.p, direction), depth - 1, world) ) ;
