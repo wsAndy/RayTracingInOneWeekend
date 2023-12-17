@@ -91,7 +91,8 @@ private:
         hit_record<T> rec;
         if(world.hit(r, interval<T>(0, infinity), rec))
         {
-            return (T)0.5*(rec.normal + color<T>(1, 1, 1) ) ;
+            vec3 direction = random_on_hemisphere(rec.normal);
+            return (T)0.5*( ray_color(ray(rec.p, direction), world) ) ;
         }
             
         vec3<T> unit_direction = unit_vector(r.direction());

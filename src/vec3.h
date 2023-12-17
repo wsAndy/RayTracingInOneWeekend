@@ -48,6 +48,14 @@ public:
     T length_squared() const {
         return e[0]*e[0] + e[1]*e[1] + e[2]*e[2];
     }
+
+    static vec3<T> random(){
+        return vec3<T>( random_double(), random_double(), random_double() );
+    }
+
+    static vec3<T> random(double min, double max) {
+        return vec3<T>(random_double(min,max), random_double(min,max), random_double(min,max));
+    }
 };
 
 template <typename T>
@@ -97,7 +105,7 @@ inline T dot(const vec3<T> &u, const vec3<T> &v) {
 
 template <typename T>
 inline vec3<T> cross(const vec3<T> &u, const vec3<T> &v) {
-    return vec3(u.e[1] * v.e[2] - u.e[2] * v.e[1],
+    return vec3<T>(u.e[1] * v.e[2] - u.e[2] * v.e[1],
                 u.e[2] * v.e[0] - u.e[0] * v.e[2],
                 u.e[0] * v.e[1] - u.e[1] * v.e[0]);
 }
@@ -105,4 +113,29 @@ inline vec3<T> cross(const vec3<T> &u, const vec3<T> &v) {
 template <typename T>
 inline vec3<T> unit_vector(vec3<T> v) {
     return v / v.length();
+}
+
+template <typename T>
+inline vec3<T> random_in_unit_sphere() {
+    while(true){
+        auto p = vec3<T>::random(-1,1);
+        if(p.length_squared() < 1){
+            return p;
+        }
+    }
+}
+
+template <typename T>
+inline vec3<T> random_unit_vector() {
+    return unit_vector<T>(random_in_unit_sphere<T>());
+}
+
+template <typename T>
+inline vec3<T> random_on_hemisphere(const vec3<T>& normal){
+    auto on_unit_sphere = random_unit_vector<T>();
+    if(dot(on_unit_sphere, normal ) > 0.0 ){
+        return on_unit_sphere;
+    }else{
+        return -on_unit_sphere;
+    }
 }
